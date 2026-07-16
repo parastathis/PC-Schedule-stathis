@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PC Schedule</title>
+<style>
+  :root {
+    --bg: #0d0e12;
+    --panel: #14161c;
+    --panel-2: #191c24;
+    --border: #23262f;
+    --text: #e8eaf0;
+    --text-dim: #8a8f9e;
+    --text-faint: #565b69;
+    --accent: #e4572e;
+    --accent-soft: rgba(228, 87, 46, 0.12);
+    --green: #4cb782;
+    --blue: #5b8def;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection { background: var(--accent-soft); }
+
+  .app {
+    max-width: 1060px;
+    margin: 0 auto;
+    padding: 48px 32px 64px;
+  }
+
+  /* ---------- Header ---------- */
+  header { margin-bottom: 40px; }
+  .greeting {
+    color: var(--text-dim);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .date-line {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+  .big-date {
+    font-size: 42px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .year { color: var(--text-faint); font-size: 42px; font-weight: 300; }
+  .day-count {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  /* ---------- Layout ---------- */
+  .columns {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 24px;
+    align-items: start;
+  }
+  @media (max-width: 800px) {
+    .columns { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 22px 18px;
+  }
+  .panel + .panel { margin-top: 24px; }
+
+  .panel-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .panel-title {
+    font-size: 16px;
+    font-weight: 650;
+    display: flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot.today { background: var(--accent); }
+  .dot.week { background: var(--blue); }
+  .dot.goals { background: var(--green); }
+  .panel-sub { color: var(--text-faint); font-size: 12.5px; }
+  .counter { color: var(--text-dim); font-size: 13px; font-variant-numeric: tabular-nums; }
+
+  /* ---------- Progress ---------- */
+  .progress {
+    height: 4px;
+    background: var(--panel-2);
+    border-radius: 2px;
+    margin: 12px 0 16px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    width: 0%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.35s ease;
+  }
+
+  /* ---------- Task list ---------- */
+  ul.tasks { list-style: none; }
+  li.task {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 8px;
+    border-radius: 8px;
+    transition: background 0.15s;
+  }
+  li.task:hover { background: var(--panel-2); }
+  li.task + li.task { border-top: 1px solid var(--border); }
+
+  .check {
+    width: 19px; height: 19px;
+    border: 1.5px solid var(--text-faint);
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 3px;
+    display: grid;
+    place-items: center;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .check:hover { border-color: var(--accent); }
+  .check svg { opacity: 0; width: 11px; height: 11px; transition: opacity 0.15s; }
+  .task.done .check { background: var(--green); border-color: var(--green); }
+  .task.done .check svg { opacity: 1; }
+
+  .task-text { flex: 1; word-break: break-word; }
+  .task.done .task-text { color: var(--text-faint); text-decoration: line-through; }
+  .carried {
+    display: inline-block;
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-radius: 4px;
+    padding: 1px 6px;
+    margin-left: 8px;
+    vertical-align: 1px;
+  }
+
+  .del {
+    background: none;
+    border: none;
+    color: var(--text-faint);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    opacity: 0;
+    transition: opacity 0.15s, color 0.15s;
+  }
+  li.task:hover .del { opacity: 1; }
+  .del:hover { color: #e4572e; }
+
+  .empty {
+    color: var(--text-faint);
+    font-size: 13.5px;
+    padding: 14px 8px;
+    font-style: italic;
+  }
+
+  /* ---------- Add row ---------- */
+  .add-row {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .add-row input {
+    flex: 1;
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font: inherit;
+    padding: 9px 13px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .add-row input::placeholder { color: var(--text-faint); }
+  .add-row input:focus { border-color: var(--accent); }
+  .add-row button {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    font: inherit;
+    font-weight: 600;
+    padding: 9px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: filter 0.15s;
+  }
+  .add-row button:hover { filter: brightness(1.12); }
+
+  .all-done {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    color: var(--green);
+    font-size: 13.5px;
+    padding: 10px 8px 2px;
+  }
+  .all-done.show { display: flex; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="greeting" id="greeting">Good morning</div>
+    <div class="date-line">
+      <span class="big-date" id="bigDate">—</span>
+      <span class="year" id="year"></span>
+    </div>
+    <div class="day-count" id="dayCount"></div>
+  </header>
+
+  <div class="columns">
+    <!-- TODAY -->
+    <section class="panel" id="todayPanel">
+      <div class="panel-head">
+        <div class="panel-title"><span class="dot today"></span>Today's Goals</div>
+        <span class="counter" id="todayCounter">0 / 0</span>
+      </div>
+      <div class="panel-sub">What must get done today?</div>
+      <div class="progress"><div class="progress-fill" id="todayProgress"></div></div>
+      <ul class="tasks" id="todayList"></ul>
+      <div class="empty" id="todayEmpty">Nothing yet — set your first goal for today.</div>
+      <div class="all-done" id="todayDone">&#10003;&nbsp; All done for today. Go touch grass.</div>
+      <div class="add-row">
+        <input id="todayInput" type="text" placeholder="Add a goal for today…" autofocus>
+        <button id="todayAdd">Add</button>
+      </div>
+    </section>
+
+    <div>
+      <!-- THIS WEEK -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="dot week"></span>This Week</div>
+          <span class="counter" id="weekCounter">0 / 0</span>
+        </div>
+        <div class="panel-sub" id="weekRange"></div>
+        <ul class="tasks" id="weekList" style="margin-top:12px"></ul>
+        <div class="empty" id="weekEmpty">No weekly goals yet.</div>
+        <div class="add-row">
+          <input id="weekInput" type="text" placeholder="Add a weekly goal…">
+          <button id="weekAdd">Add</button>
+        </div>
+      </section>
+
+      <!-- GENERIC GOALS -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="dot goals"></span>Big Goals</div>
+          <span class="counter" id="genCounter">0 / 0</span>
+        </div>
+        <div class="panel-sub">Long-term — always in sight.</div>
+        <ul class="tasks" id="genList" style="margin-top:12px"></ul>
+        <div class="empty" id="genEmpty">No big goals yet. Think bigger.</div>
+        <div class="add-row">
+          <input id="genInput" type="text" placeholder="Add a big goal…">
+          <button id="genAdd">Add</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const STORE_KEY = "pc-schedule-v1";
+
+  function todayStr(d) {
+    d = d || new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+  // Monday of the current week, as YYYY-MM-DD — identifies the week
+  function weekStr(d) {
+    d = new Date(d || new Date());
+    const day = (d.getDay() + 6) % 7; // 0 = Monday
+    d.setDate(d.getDate() - day);
+    return todayStr(d);
+  }
+
+  function load() {
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }
+    catch (e) { return {}; }
+  }
+  const data = Object.assign({ today: [], week: [], generic: [] }, load());
+  function save() { localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+
+  const TODAY = todayStr();
+  const WEEK = weekStr();
+
+  // Carry over: unfinished tasks from past days roll into today (marked),
+  // finished past tasks are cleared. Same logic for weeks.
+  data.today = data.today.filter(t => !(t.done && t.date !== TODAY));
+  data.today.forEach(t => { if (t.date !== TODAY) t.carried = true; });
+  data.week = data.week.filter(t => !(t.done && t.week !== WEEK));
+  data.week.forEach(t => { if (t.week !== WEEK) t.carried = true; });
+  save();
+
+  // ---------- Header ----------
+  const now = new Date();
+  const h = now.getHours();
+  document.getElementById("greeting").textContent =
+    h < 5 ? "Still up?" : h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+  document.getElementById("bigDate").textContent =
+    now.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+  document.getElementById("year").textContent = now.getFullYear();
+
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const dayOfYear = Math.floor((now - startOfYear) / 86400000) + 1;
+  const totalDays = (now.getFullYear() % 4 === 0 && (now.getFullYear() % 100 !== 0 || now.getFullYear() % 400 === 0)) ? 366 : 365;
+  document.getElementById("dayCount").textContent =
+    "Day " + dayOfYear + " of " + totalDays + " · " + Math.round(dayOfYear / totalDays * 100) + "% of the year gone";
+
+  const weekStart = new Date(WEEK + "T00:00:00");
+  const weekEnd = new Date(weekStart); weekEnd.setDate(weekEnd.getDate() + 6);
+  const fmt = d => d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  document.getElementById("weekRange").textContent = "Mon " + fmt(weekStart) + " – Sun " + fmt(weekEnd);
+
+  // ---------- Rendering ----------
+  const CHECK_SVG = '<svg viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.8 9L10 3.5" stroke="#0d0e12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+  const sections = [
+    { key: "today", list: "todayList", empty: "todayEmpty", counter: "todayCounter", input: "todayInput", add: "todayAdd",
+      make: text => ({ text, done: false, date: TODAY }) },
+    { key: "week", list: "weekList", empty: "weekEmpty", counter: "weekCounter", input: "weekInput", add: "weekAdd",
+      make: text => ({ text, done: false, week: WEEK }) },
+    { key: "generic", list: "genList", empty: "genEmpty", counter: "genCounter", input: "genInput", add: "genAdd",
+      make: text => ({ text, done: false }) },
+  ];
+
+  function render(sec) {
+    const items = data[sec.key];
+    const ul = document.getElementById(sec.list);
+    ul.innerHTML = "";
+    items.forEach((t, i) => {
+      const li = document.createElement("li");
+      li.className = "task" + (t.done ? " done" : "");
+
+      const btn = document.createElement("button");
+      btn.className = "check";
+      btn.innerHTML = CHECK_SVG;
+      btn.title = t.done ? "Mark as not done" : "Mark as done";
+      btn.onclick = () => { t.done = !t.done; save(); render(sec); };
+
+      const span = document.createElement("span");
+      span.className = "task-text";
+      span.textContent = t.text;
+      if (t.carried) {
+        const tag = document.createElement("span");
+        tag.className = "carried";
+        tag.textContent = "carried over";
+        span.appendChild(tag);
+      }
+
+      const del = document.createElement("button");
+      del.className = "del";
+      del.textContent = "×";
+      del.title = "Delete";
+      del.onclick = () => { items.splice(i, 1); save(); render(sec); };
+
+      li.append(btn, span, del);
+      ul.appendChild(li);
+    });
+
+    const done = items.filter(t => t.done).length;
+    document.getElementById(sec.counter).textContent = done + " / " + items.length;
+    document.getElementById(sec.empty).style.display = items.length ? "none" : "block";
+
+    if (sec.key === "today") {
+      const pct = items.length ? (done / items.length * 100) : 0;
+      document.getElementById("todayProgress").style.width = pct + "%";
+      document.getElementById("todayDone").classList.toggle("show", items.length > 0 && done === items.length);
+    }
+  }
+
+  sections.forEach(sec => {
+    const input = document.getElementById(sec.input);
+    const addItem = () => {
+      const text = input.value.trim();
+      if (!text) return;
+      data[sec.key].push(sec.make(text));
+      input.value = "";
+      save();
+      render(sec);
+      input.focus();
+    };
+    document.getElementById(sec.add).onclick = addItem;
+    input.addEventListener("keydown", e => { if (e.key === "Enter") addItem(); });
+    render(sec);
+  });
+})();
+</script>
+</body>
+</html>
