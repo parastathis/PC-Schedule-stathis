@@ -7,7 +7,7 @@
   "private": true,
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager . \"PC Schedule\" --platform=win32 --arch=x64 --icon=icon.ico --out=dist --overwrite --ignore=^/dist --ignore=^/data --ignore=^/\\.git"
+    "build": "electron-packager . \"PC Schedule\" --platform=win32 --arch=x64 --icon=icon.ico --out=dist --overwrite --ignore=^/dist --ignore=^/data --ignore=^/release --ignore=^/\\.git --ignore=^/launch\\.ps1 --ignore=^/icon-old\\.ico"
   },
   "devDependencies": {
     "@electron/packager": "^20.3.0",
