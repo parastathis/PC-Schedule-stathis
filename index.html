@@ -2389,7 +2389,7 @@
   .titlebar-pill { gap: 10px; max-width: 1760px; }
   .tabbar {
     align-items: center;
-    gap: 4px;
+    gap: 2px;
     overflow-x: auto;
     overscroll-behavior-x: contain;
   }
@@ -2402,7 +2402,7 @@
     gap: 8px;
     min-width: 46px;
     height: 44px;
-    padding: 0 14px;
+    padding: 0 12px;
     white-space: nowrap;
     line-height: 1;
     position: relative;
@@ -2428,13 +2428,6 @@
   @media (max-width: 1180px) {
     .page-tab:not([aria-selected="true"]) .lbl,
     .page-tab:not([aria-selected="true"]) .n { display: inline-block; }
-  }
-  @media (max-width: 1700px) {
-    .page-tab { padding: 0 11px; flex-grow: 0; }
-    .page-tab:not([aria-selected="true"]) .lbl { display: none; }
-    .page-tab:not([aria-selected="true"]) .n { display: none; }
-    .page-tab[aria-selected="true"] { flex-grow: 0; padding: 0 16px; }
-    .tabbar { justify-content: space-between; }
   }
   @media (max-width: 700px) {
     .page-tab { padding: 0 9px; }
@@ -2471,6 +2464,89 @@
   }
   .theme-opt svg { width: 16px; height: 16px; flex-shrink: 0; }
 
+  /* the idle tabs go icon-only when the names no longer fit (set by fitTabs) */
+  html.tabs-compact .page-tab { padding: 0 11px; flex-grow: 0; }
+  html.tabs-compact .page-tab:not([aria-selected="true"]) .lbl,
+  html.tabs-compact .page-tab:not([aria-selected="true"]) .n { display: none; }
+  html.tabs-compact .page-tab[aria-selected="true"] { padding: 0 16px; }
+  html.tabs-compact .tabbar { justify-content: space-between; }
+  html.tabs-compact .theme-opt .lbl { display: none; }
+  html.tabs-compact .theme-opt { padding: 0 9px; }
+
+  /* dates / obligations this week */
+  .date-strip {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 14px;
+  }
+  .dstrip-day {
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+    padding: 7px 0 6px;
+    border: 2px solid var(--line); border-radius: 12px;
+    background: var(--panel-2); color: var(--dim);
+    font: inherit; cursor: pointer; position: relative;
+    transition: border-color .15s, background-color .15s, color .15s, transform .12s var(--press);
+  }
+  .dstrip-day:hover { border-color: var(--ink); color: var(--text); }
+  .dstrip-day:active { transform: translate(1px, 1px); }
+  .dstrip-day .ds-name { font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; }
+  .dstrip-day .ds-num { font-family: var(--display); font-weight: 800; font-size: 18px; color: var(--text); line-height: 1.1; }
+  .dstrip-day .ds-count {
+    min-width: 18px; height: 16px; padding: 0 5px; border-radius: 999px;
+    font-family: var(--mono); font-size: 10px; font-weight: 700; line-height: 16px; text-align: center;
+    background: var(--ink); color: var(--panel);
+  }
+  .dstrip-day .ds-count:empty { visibility: hidden; }
+  .dstrip-day.is-past { opacity: .6; }
+  .dstrip-day.is-today { border-color: var(--ink); }
+  .dstrip-day.on { background: var(--accent); border-color: var(--ink); color: var(--accent-ink); box-shadow: 3px 3px 0 0 var(--toon); opacity: 1; }
+  .dstrip-day.on .ds-num { color: var(--accent-ink); }
+
+  .date-group { margin-top: 16px; }
+  .date-day {
+    display: flex; align-items: baseline; gap: 8px;
+    font-family: var(--display); font-size: 15px; font-weight: 800; letter-spacing: -.01em;
+    padding-bottom: 6px; border-bottom: 2px solid var(--line);
+  }
+  .date-day small { font-family: var(--mono); font-size: 11px; font-weight: 500; color: var(--faint); letter-spacing: .04em; }
+  .date-group.today .date-day { border-bottom-color: var(--accent); }
+  .date-group.today .date-day span { background: var(--accent); color: var(--accent-ink); padding: 0 6px; border-radius: 6px; }
+  .date-group.past .date-day, .date-group.earlier .date-day { color: var(--dim); }
+  .date-group ul.tasks { margin-top: 4px; }
+  .date-item { align-items: center; }
+  .date-time {
+    flex-shrink: 0; min-width: 62px;
+    font-family: var(--mono); font-size: 12px; font-weight: 700;
+    padding: 3px 7px; border-radius: 7px;
+    border: 1.5px solid var(--ink); background: var(--panel); color: var(--text);
+    cursor: pointer; font-variant-numeric: tabular-nums;
+  }
+  .date-time.none { border-style: dashed; border-color: var(--line); color: var(--faint); font-weight: 500; }
+  .date-time:hover { background: var(--accent); color: var(--accent-ink); border-color: var(--ink); border-style: solid; }
+  .date-item.is-overdue .task-text { color: var(--text); }
+  .date-add input[type="time"], .date-add input[type="date"] {
+    flex: 0 0 auto; width: auto;
+    font: inherit; font-size: 13px;
+    background: var(--bg-tint); color: var(--text);
+    border: var(--edge) solid var(--ink); border-radius: 12px; padding: 0 10px;
+    color-scheme: inherit;
+  }
+  .pop-days { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-bottom: 8px; }
+  .pop-day {
+    font: inherit; font-size: 12px; font-weight: 700; padding: 6px 0;
+    border: 1.5px solid var(--line); border-radius: 7px; background: var(--panel); color: var(--text); cursor: pointer;
+  }
+  .pop-day:hover { border-color: var(--ink); }
+  .pop-day.is-today { border-color: var(--ink); }
+  .pop-day.on { background: var(--accent); color: var(--accent-ink); border-color: var(--ink); }
+  .pop-row { display: flex; gap: 6px; }
+  .pop-row .pop-input { font-size: 13px; padding: 7px 8px; }
+  @media (max-width: 560px) {
+    .date-add { flex-wrap: wrap; }
+    .date-add input[type="text"] { flex-basis: 100%; }
+  }
+
   /* review: Week | Month | Year */
   .rv-ctrls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .rv-modes {
@@ -2493,7 +2569,6 @@
   .theme-opt:active { transform: scale(.96); }
   .theme-opt[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
   :root[data-theme="dark"] .theme-opt[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
-  @media (max-width: 1700px) { .theme-opt .lbl { display: none; } .theme-opt { padding: 0 9px; } }
 </style>
 </head>
 <body>
@@ -2513,6 +2588,10 @@
     <button type="button" class="page-tab" role="tab" data-page="week" aria-selected="false" title="Obligations  ·  Ctrl+3">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
       <span class="lbl">Obligations</span><span class="n" data-count="week"></span>
+    </button>
+    <button type="button" class="page-tab" role="tab" data-page="dates" aria-selected="false" title="Dates / Obligations this week">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/><path d="M12 13.5v2.5l1.8 1.1"/></svg>
+      <span class="lbl">This week</span><span class="n" data-count="dates"></span>
     </button>
     <button type="button" class="page-tab" role="tab" data-page="generic" aria-selected="false" title="Big goals  ·  Ctrl+4">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 21V4"/><path d="M5 4h12l-2.5 4L17 12H5"/></svg>
@@ -2705,6 +2784,34 @@
           <button id="weekAdd" type="button">Add</button>
         </div>
         <div class="panel-foot"><button class="clear-done" id="weekClear" type="button">Clear done</button></div>
+      </section>
+
+      <!-- ── DATES / OBLIGATIONS THIS WEEK ─── -->
+      <section class="panel dates" style="--d:100ms" aria-labelledby="datesTitle">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title" id="datesTitle"><span class="dot live"></span>Dates / Obligations this week</h2>
+            <p class="panel-sub">Anything tied to a day: appointments, deadlines, calls. Pick the day, add a time if it has one.</p>
+          </div>
+          <span class="counter" id="datesCounter">0 / 0</span>
+        </div>
+
+        <div class="date-strip" id="dateStrip" role="group" aria-label="Days of this week"></div>
+
+        <div class="date-list" id="datesList"></div>
+
+        <p class="empty" id="datesEmpty">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/><circle cx="12" cy="15.5" r="1.4"/></svg>
+          <span><b>Nothing dated this week.</b>Pick a day above, write what's happening, add a time if it has one.</span>
+        </p>
+
+        <div class="add-row date-add">
+          <input id="datesInput" type="text" placeholder="What's happening…" aria-label="New dated obligation" autocomplete="off">
+          <input id="datesTime" type="time" aria-label="Time (optional)" title="Time (optional)">
+          <input id="datesDate" type="date" aria-label="Day" title="Day">
+          <button id="datesAdd" type="button">Add</button>
+        </div>
+        <div class="panel-foot"><button class="clear-done" id="datesClear" type="button">Clear done</button></div>
       </section>
 
       <!-- ── BIG GOALS ─────────────────────── -->
@@ -3053,6 +3160,7 @@
     generic: Array.isArray(stored.generic) ? stored.generic : [],
     someday: Array.isArray(stored.someday) ? stored.someday : [],
     buy:     Array.isArray(stored.buy)     ? stored.buy     : [],
+    dates:   Array.isArray(stored.dates)   ? stored.dates   : [],
     projects: Array.isArray(stored.projects) ? stored.projects : [],
     /* A cloud only exists once something is written in it, so an empty one
        left behind by a reload mid-typing carries nothing worth keeping. */
@@ -3288,7 +3396,7 @@
     undoHistLen = data.history.length;
     undoSnapshot = JSON.stringify({
       today: data.today, week: data.week, generic: data.generic, someday: data.someday,
-      habits: data.habits, rules: data.rules, buy: data.buy, projects: data.projects,
+      habits: data.habits, rules: data.rules, buy: data.buy, projects: data.projects, dates: data.dates,
       clouds: data.clouds, periods: data.periods
     });
   }
@@ -3304,6 +3412,7 @@
     if (prev.habits) data.habits = prev.habits;
     if (prev.rules) data.rules = prev.rules;
     if (prev.buy) data.buy = prev.buy;
+    if (prev.dates) data.dates = prev.dates;
     if (prev.projects) data.projects = prev.projects;
     if (data.history.length > undoHistLen) data.history.length = undoHistLen;
     save();
@@ -3323,7 +3432,7 @@
     var payload = JSON.stringify({
       exportedAt: new Date().toISOString(),
       today: data.today, week: data.week, generic: data.generic, someday: data.someday,
-      habits: data.habits, rules: data.rules, buy: data.buy, projects: data.projects,
+      habits: data.habits, rules: data.rules, buy: data.buy, projects: data.projects, dates: data.dates,
       clouds: data.clouds, periods: data.periods
     }, null, 2);
     var blob = new Blob([payload], { type: "application/json" });
@@ -3366,6 +3475,7 @@
       if (Array.isArray(payload.habits)) data.habits = payload.habits;
       if (Array.isArray(payload.rules))  data.rules  = payload.rules;
       if (Array.isArray(payload.buy))    data.buy    = payload.buy;
+      if (Array.isArray(payload.dates))  data.dates  = payload.dates;
       if (Array.isArray(payload.projects)) data.projects = payload.projects;
       if (Array.isArray(payload.history)) data.history = payload.history;
       save();
@@ -3754,7 +3864,7 @@
     return true;
   }
   function allGoals() {
-    return data.today.concat(data.someday, data.week, data.generic, data.buy);
+    return data.today.concat(data.someday, data.week, data.dates, data.generic, data.buy);
   }
   function tagRe(key) {
     return new RegExp("(^|\\s)#" + key.replace(/[-]/g, "\\-") + "(?=\\s|$)", "giu");
@@ -4246,6 +4356,232 @@
     renderRules();
   });
 
+  /* ───────── dates / obligations this week ─────────
+     Things tied to a day. Grouped by day: anything left open from before
+     this week, each day Monday to Sunday that has something, then anything
+     further out. Like everything else, nothing leaves unless you remove it. */
+  var DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  var datePick = TODAY;
+
+  function dayLabel(d) {
+    if (d === TODAY) return "Today";
+    if (d === addDays(TODAY, 1)) return "Tomorrow";
+    if (d === addDays(TODAY, -1)) return "Yesterday";
+    return fromISO(d).toLocaleDateString("en-US", { weekday: "long" });
+  }
+  function byTime(a, b) {
+    if (!!a.done !== !!b.done) return a.done ? 1 : -1;
+    if (a.date !== b.date) return a.date < b.date ? -1 : 1;
+    var ta = a.time || "99:99", tb = b.time || "99:99";
+    return ta < tb ? -1 : ta > tb ? 1 : 0;
+  }
+
+  function renderDateStrip() {
+    var strip = document.getElementById("dateStrip");
+    strip.innerHTML = "";
+    for (var i = 0; i < 7; i++) {
+      (function (d, i) {
+        var open = data.dates.filter(function (t) { return t.date === d && !t.done; }).length;
+        var b = document.createElement("button");
+        b.type = "button";
+        b.className = "dstrip-day" + (d === TODAY ? " is-today" : "") + (d < TODAY ? " is-past" : "") + (d === datePick ? " on" : "");
+        b.setAttribute("aria-pressed", String(d === datePick));
+        b.title = fromISO(d).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" }) +
+          (open ? " — " + plural(open, "thing") : "");
+        var nm = document.createElement("span"); nm.className = "ds-name"; nm.textContent = DAY_NAMES[i];
+        var num = document.createElement("span"); num.className = "ds-num"; num.textContent = fromISO(d).getDate();
+        var dot = document.createElement("span"); dot.className = "ds-count"; dot.textContent = open || "";
+        b.append(nm, num, dot);
+        b.onclick = function () { datePick = d; document.getElementById("datesDate").value = d; renderDateStrip(); document.getElementById("datesInput").focus(); };
+        strip.appendChild(b);
+      })(addDays(THIS_MONDAY, i), i);
+    }
+  }
+
+  function reschedule(t, anchor) {
+    openPop(anchor, function (box) {
+      var title = document.createElement("p");
+      title.className = "pop-title";
+      title.textContent = "Move to";
+      var chips = document.createElement("div");
+      chips.className = "pop-days";
+      for (var i = 0; i < 7; i++) {
+        (function (d, i) {
+          var b = document.createElement("button");
+          b.type = "button";
+          b.className = "pop-day" + (d === t.date ? " on" : "") + (d === TODAY ? " is-today" : "");
+          b.textContent = DAY_NAMES[i] + " " + fromISO(d).getDate();
+          b.onclick = function () { t.date = d; save(); renderDates(); queueTabs(); closePop(); };
+          chips.appendChild(b);
+        })(addDays(THIS_MONDAY, i), i);
+      }
+      var row = document.createElement("div");
+      row.className = "pop-row";
+      var di = document.createElement("input");
+      di.type = "date"; di.className = "pop-input"; di.value = t.date; di.setAttribute("aria-label", "Date");
+      var ti = document.createElement("input");
+      ti.type = "time"; ti.className = "pop-input"; ti.value = t.time || ""; ti.setAttribute("aria-label", "Time");
+      di.onchange = function () { if (di.value) { t.date = di.value; save(); renderDates(); queueTabs(); } };
+      ti.onchange = function () { t.time = ti.value || ""; save(); renderDates(); };
+      row.append(di, ti);
+      box.append(title, chips, row);
+    });
+  }
+
+  function dateRow(t) {
+    var li = document.createElement("li");
+    var overdue = !t.done && t.date < TODAY;
+    li.className = "task no-anim date-item" + (t.done ? " is-done" : "") + (overdue ? " is-overdue" : "");
+
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "check";
+    btn.innerHTML = CHECK_SVG;
+    btn.title = t.done ? "Mark as not done" : "Mark as done";
+    btn.setAttribute("aria-pressed", String(!!t.done));
+    btn.setAttribute("aria-label", (t.done ? "Reopen: " : "Complete: ") + t.text);
+    btn.onclick = function () {
+      t.done = !t.done;
+      track(t.done ? "done" : "undone", "dates", t.text);
+      save(); renderDates(); queueTabs();
+    };
+
+    var time = document.createElement("button");
+    time.type = "button";
+    time.className = "date-time" + (t.time ? "" : " none");
+    time.textContent = t.time || "any time";
+    time.title = "Change the day or time";
+    time.onclick = function () { reschedule(t, time); };
+
+    var body = document.createElement("div");
+    body.className = "task-body";
+    var parts = splitTags(t.text);
+    var span = document.createElement("span");
+    span.className = "task-text";
+    span.textContent = parts.clean;
+    span.title = "Double-click to edit";
+    span.ondblclick = function () { startEdit(span, t, renderDates); };
+    body.appendChild(span);
+    var meta = document.createElement("div");
+    meta.className = "meta";
+    parts.tags.forEach(function (name) { meta.appendChild(makeChip(name)); });
+    if (overdue) {
+      var od = document.createElement("span");
+      od.className = "tag stale";
+      od.textContent = "overdue · " + fmtDay(t.date);
+      meta.appendChild(od);
+    }
+    if (meta.children.length) body.appendChild(meta);
+
+    var projBtn = document.createElement("button");
+    projBtn.type = "button";
+    projBtn.className = "del proj-btn";
+    projBtn.innerHTML = TAG_SVG;
+    projBtn.title = "Projects";
+    projBtn.setAttribute("aria-label", "Choose projects for: " + parts.clean);
+    projBtn.onclick = function () { pickProjects(t, projBtn, renderDates); };
+
+    var del = document.createElement("button");
+    del.type = "button";
+    del.className = "del";
+    del.innerHTML = "&times;";
+    del.title = "Delete this date";
+    del.setAttribute("aria-label", "Delete: " + t.text);
+    del.onclick = function () {
+      snapshot();
+      data.dates.splice(data.dates.indexOf(t), 1);
+      if (!t.done) track("del", "dates", t.text);
+      save(); renderDates(); queueTabs();
+      offerUndo("Deleted “" + (t.text.length > 40 ? t.text.slice(0, 40) + "…" : t.text) + "”");
+    };
+
+    li.append(btn, time, body, projBtn, del);
+    return li;
+  }
+
+  function renderDates() {
+    var box = document.getElementById("datesList");
+    if (!box) return;
+    box.innerHTML = "";
+    var sun = addDays(THIS_MONDAY, 6);
+    var items = data.dates.filter(matchesFilter).slice().sort(byTime);
+    var groups = [];
+    var earlier = items.filter(function (t) { return t.date < THIS_MONDAY; });
+    if (earlier.length) groups.push({ label: "Before this week", sub: "", items: earlier, cls: "earlier" });
+    for (var i = 0; i < 7; i++) {
+      var d = addDays(THIS_MONDAY, i);
+      var onDay = items.filter(function (t) { return t.date === d; });
+      if (onDay.length) groups.push({ label: dayLabel(d), sub: DAY_NAMES[i] + " " + fromISO(d).getDate(),
+        items: onDay, cls: d === TODAY ? "today" : d < TODAY ? "past" : "" });
+    }
+    var later = items.filter(function (t) { return t.date > sun; });
+    var laterDays = [];
+    later.forEach(function (t) { if (laterDays.indexOf(t.date) < 0) laterDays.push(t.date); });
+    laterDays.forEach(function (d) {
+      groups.push({ label: d <= addDays(sun, 7) ? "Next " + fromISO(d).toLocaleDateString("en-US", { weekday: "long" }) : fmtDay(d, true),
+        sub: "later", items: later.filter(function (t) { return t.date === d; }), cls: "later" });
+    });
+
+    groups.forEach(function (g) {
+      var sec = document.createElement("div");
+      sec.className = "date-group " + g.cls;
+      var h = document.createElement("h3");
+      h.className = "date-day";
+      var l = document.createElement("span"); l.textContent = g.label;
+      h.appendChild(l);
+      if (g.sub) { var sm = document.createElement("small"); sm.textContent = g.sub; h.appendChild(sm); }
+      sec.appendChild(h);
+      var ul = document.createElement("ul");
+      ul.className = "tasks";
+      g.items.forEach(function (t) { ul.appendChild(dateRow(t)); });
+      sec.appendChild(ul);
+      box.appendChild(sec);
+    });
+
+    var inWeek = data.dates.filter(function (t) { return t.date >= THIS_MONDAY && t.date <= sun; });
+    var doneWeek = inWeek.filter(function (t) { return t.done; }).length;
+    document.getElementById("datesCounter").textContent = doneWeek + " / " + inWeek.length;
+    document.getElementById("datesEmpty").classList.toggle("show", groups.length === 0);
+    var doneAll = data.dates.filter(function (t) { return t.done; }).length;
+    var clr = document.getElementById("datesClear");
+    clr.classList.toggle("show", doneAll > 0);
+    clr.textContent = "Clear " + doneAll + " done";
+    renderDateStrip();
+  }
+
+  (function wireDates() {
+    var input = document.getElementById("datesInput");
+    var timeIn = document.getElementById("datesTime");
+    var dateIn = document.getElementById("datesDate");
+    dateIn.value = datePick;
+    dateIn.onchange = function () { if (dateIn.value) { datePick = dateIn.value; renderDateStrip(); } };
+    function add() {
+      var text = input.value.trim();
+      if (!text) { input.focus(); return; }
+      if (activeTag && splitTags(text).tags.indexOf(activeTag) < 0) text = "#" + activeTag + " " + text;
+      data.dates.push({ text: text, date: dateIn.value || datePick, time: timeIn.value || "", done: false, added: TODAY });
+      track("add", "dates", text);
+      input.value = ""; timeIn.value = "";
+      save(); renderDates(); queueTabs();
+      input.focus();
+    }
+    document.getElementById("datesAdd").onclick = add;
+    [input, timeIn].forEach(function (el) {
+      el.addEventListener("keydown", function (e) {
+        if (e.key === "Enter") add();
+        else if (e.key === "Escape" && el === input) { input.value = ""; input.blur(); }
+      });
+    });
+    document.getElementById("datesClear").onclick = function () {
+      var n = data.dates.filter(function (t) { return t.done; }).length;
+      if (!n) return;
+      snapshot();
+      data.dates = data.dates.filter(function (t) { return !t.done; });
+      save(); renderDates(); queueTabs();
+      offerUndo("Cleared " + plural(n, "done date"));
+    };
+  })();
+
   /* ───────── render ───────── */
   function render(sec) {
     queueTabs();
@@ -4467,7 +4803,7 @@
     renderFilters();
   }
 
-  function renderAll() { sections.forEach(render); renderHabits(); renderRules(); }
+  function renderAll() { sections.forEach(render); renderHabits(); renderRules(); renderDates(); }
 
   /* ───────── wiring ───────── */
   sections.forEach(function (sec) {
@@ -4514,6 +4850,7 @@
   });
   renderHabits();
   renderRules();
+  renderDates();
 
   (function watchToolbar() {
     var bar = document.getElementById("toolbar");
@@ -4891,8 +5228,14 @@
   /* Pages, one tab each: Today (goals + habits), one tab per section, the
      Board with everything, and Thoughts. The page is kept in the address
      (#habits, #board …) so a reload stays put; no hash means Today. */
-  var PAGES = ["today", "habits", "week", "generic", "rules", "buy", "someday", "review", "board", "thoughts"];
-  var SECTION_PAGES = ["habits", "week", "generic", "rules", "buy", "someday", "review"];
+  var PAGES = ["today", "habits", "week", "dates", "generic", "rules", "buy", "someday", "review", "board", "thoughts"];
+  var SECTION_PAGES = ["habits", "week", "dates", "generic", "rules", "buy", "someday", "review"];
+  /* Ctrl+1 … Ctrl+0 follow the tab order; the titles say which is which. */
+  Array.prototype.forEach.call(document.querySelectorAll(".page-tab"), function (b) {
+    var i = PAGES.indexOf(b.getAttribute("data-page"));
+    var name = (b.getAttribute("title") || "").split("  ·  ")[0];
+    b.setAttribute("title", i >= 0 && i < 10 ? name + "  ·  Ctrl+" + ((i + 1) % 10) : name);
+  });
   var page = PAGES.indexOf(location.hash.slice(1)) > 0 ? location.hash.slice(1) : "today";
   function skyShown() { return page === "thoughts"; }
 
@@ -4963,13 +5306,25 @@
       rules: data.rules.length,
       buy: open(data.buy),
       someday: data.someday.length,
-      review: (data.briefSeen && data.briefSeen >= briefTarget()) || !weekStats(briefTarget()).anything ? "" : "New"
+      review: (data.briefSeen && data.briefSeen >= briefTarget()) || !weekStats(briefTarget()).anything ? "" : "New",
+      dates: data.dates.filter(function (t) { return !t.done && t.date <= addDays(THIS_MONDAY, 6); }).length
     };
     Object.keys(counts).forEach(function (k) {
       var el = document.querySelector('.page-tab .n[data-count="' + k + '"]');
       if (el) el.textContent = counts[k] === 0 || counts[k] === "0/0" ? "" : counts[k];
     });
+    fitTabs();
   }
+
+  /* When the tabs no longer fit with their names, the idle ones drop to
+     icons. Measured, not guessed from the window width. */
+  function fitTabs() {
+    var root = document.documentElement, bar = document.querySelector(".tabbar");
+    if (!bar) return;
+    root.classList.remove("tabs-compact");
+    if (bar.scrollWidth > bar.clientWidth + 1) root.classList.add("tabs-compact");
+  }
+  window.addEventListener("resize", fitTabs);
 
   document.documentElement.setAttribute("data-page", page);
   showPage(page);
@@ -5044,7 +5399,7 @@
      other box, in any column. The arrangement is saved with the rest of the
      data (data.layout: one list of box keys per column). */
   var PANEL_KEYS = { todayList: "today", habitList: "habits", weekList: "week", genList: "generic",
-                     ruleList: "rules", buyList: "buy", somedayList: "someday" };
+                     ruleList: "rules", buyList: "buy", somedayList: "someday", datesList: "dates" };
   var stacks = Array.prototype.slice.call(document.querySelectorAll(".board > .stack"));
   var panelsByKey = {};
   Object.keys(PANEL_KEYS).forEach(function (id) {
@@ -5146,7 +5501,7 @@
      the habit logs: what got done, what slipped, how the habits held. It
      opens by itself on Sunday evening (or the first launch after it). */
   var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  var SEC_NAMES = { today: "Today", week: "Obligation", generic: "Big goal", buy: "Bought", someday: "Not today" };
+  var SEC_NAMES = { today: "Today", week: "Obligation", dates: "Dated", generic: "Big goal", buy: "Bought", someday: "Not today" };
   var briefWeek = null;
 
   function briefTarget() {
