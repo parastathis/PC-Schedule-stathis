@@ -2936,7 +2936,7 @@
     Nothing is ever removed on its own — goals stay until you delete them, even after a period ends.
     In Today's Goals, the square on the right ranks importance: the first one you tick becomes
     <b>1</b>, the next <b>2</b>, and unticking closes the gap. In Obligations, the square on the right just flags
-    what matters: tick it and it turns green, double-click it and it turns blue. Either way the goal jumps to the top of its list —
+    what matters: click it once and it turns green, again and it turns blue, a third time and it clears. Either way the goal jumps to the top of its list —
     blue ones above green ones —
     ranked ones in rank order — and it never completes or removes the goal. The clock on the left of each goal in Today's Goals
     sends it over to Not Today. The phone button marks who you've contacted. Obligations and Big Goals each run on one
@@ -4736,21 +4736,18 @@
         tick.type = "button";
         tick.className = "tick" + (t.important ? " on" : "") + (t.blue ? " blue" : "");
         tick.innerHTML = CHECK_SVG;
-        tick.title = (t.important ? "Important — click to unmark" : "Mark as important") + " · double-click for blue";
-        tick.setAttribute("aria-pressed", String(!!t.important));
-        tick.setAttribute("aria-label", (t.important ? "Remove importance from: " : "Mark as important: ") + t.text);
-        var tickClickTimer = null;
+        /* One click per step, no double-click to guess at: empty → green →
+           blue → empty. (Waiting to see if a second click was coming made a
+           quick tick-untick turn the goal blue instead.) */
+        var level = t.blue ? "blue" : t.important ? "green" : "none";
+        tick.title = { none: "Mark as important (green)", green: "Important — click again for blue",
+                       blue: "Top priority — click to clear" }[level];
+        tick.setAttribute("aria-pressed", String(level !== "none"));
+        tick.setAttribute("aria-label", tick.title + ": " + t.text);
         tick.onclick = function () {
-          if (tickClickTimer) { clearTimeout(tickClickTimer); tickClickTimer = null; return; }
-          tickClickTimer = setTimeout(function () {
-            tickClickTimer = null;
-            t.important = !t.important;
-            save(); render(sec);
-          }, 260);
-        };
-        tick.ondblclick = function () {
-          if (tickClickTimer) { clearTimeout(tickClickTimer); tickClickTimer = null; }
-          t.blue = !t.blue;
+          if (level === "none") { t.important = true; t.blue = false; }
+          else if (level === "green") { t.important = true; t.blue = true; }
+          else { t.important = false; t.blue = false; }
           save(); render(sec);
         };
 
@@ -4814,6 +4811,7 @@
     document.getElementById("tallyOpen").textContent = all.length - done;
     document.getElementById("tallyDone").textContent = done;
     renderFilters();
+    queueTabs();
   }
 
   function renderAll() { sections.forEach(render); renderHabits(); renderRules(); renderDates(); }
@@ -5306,7 +5304,9 @@
   var tabsFrame = 0;
   function queueTabs() {
     if (tabsFrame) return;
-    tabsFrame = requestAnimationFrame(function () { tabsFrame = 0; updateTabs(); });
+    /* a timer, not an animation frame: frames pause while the window is
+       hidden or minimised, and the counts would stay stale until it shows */
+    tabsFrame = setTimeout(function () { tabsFrame = 0; updateTabs(); }, 0);
   }
   /* The little count on each tab: what is still open there. */
   function updateTabs() {
