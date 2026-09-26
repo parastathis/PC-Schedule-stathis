@@ -2565,6 +2565,14 @@
   .rv-bars.rv-month .rv-track { border-width: 1.5px; border-radius: 5px; }
   .rv-bars.rv-month .rv-bd { font-size: 10px; min-height: 14px; }
   .rv-bars.rv-year { gap: 8px; }
+  /* bars you can open: a month in the year, a day (its week) in the month */
+  button.rv-bar.rv-go {
+    font: inherit; color: inherit; background: none; border: 0; padding: 0;
+    cursor: pointer; border-radius: 10px; transition: transform .14s var(--press);
+  }
+  button.rv-bar.rv-go:hover .rv-track { border-color: var(--accent); box-shadow: 3px 3px 0 0 var(--toon); }
+  button.rv-bar.rv-go:hover .rv-bd { color: var(--text); }
+  button.rv-bar.rv-go:active { transform: translate(1px, 1px); }
   .theme-opt:hover { color: var(--text); }
   .theme-opt:active { transform: scale(.96); }
   .theme-opt[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
@@ -5695,7 +5703,9 @@
           var inMonth = w.perDay.filter(function (x) { return x.d.slice(0, 7) === first.slice(0, 7); });
           var avg = inMonth.length ? inMonth.reduce(function (a, x) { return a + x.pct; }, 0) / inMonth.length : null;
           cols.push({ pct: avg, top: avg === null ? "" : Math.round(avg * 100) + "%", label: MONTHS[m],
-                      now: first.slice(0, 7) === iso().slice(0, 7) });
+                      now: first.slice(0, 7) === iso().slice(0, 7),
+                      title: "Open " + fromISO(first).toLocaleDateString("en-US", { month: "long", year: "numeric" }),
+                      go: (function (f) { return function () { briefMode = "month"; briefMonth = f; renderBrief(); }; })(first) });
         }
       } else {
         var total = diffDays(w.end, w.mon) + 1;
@@ -5706,13 +5716,16 @@
           cols.push({ pct: pd ? pd.pct : null, n: pd ? pd.n : 0,
                       top: unit === "week" && pd ? pd.n + "/" + data.habits.length : "",
                       label: unit === "week" ? DOW[i] : (dnum === 1 || dnum % 5 === 0 ? String(dnum) : ""),
-                      title: fmtDay(day) + (pd ? " — " + pd.n + "/" + data.habits.length : ""),
+                      title: fmtDay(day) + (pd ? " — " + pd.n + "/" + data.habits.length : "") +
+                             (unit === "month" ? " · open that week" : ""),
+                      go: unit === "month" ? (function (d) { return function () { briefMode = "week"; briefWeek = mondayOf(fromISO(d)); renderBrief(); }; })(day) : null,
                       now: day === iso() });
         }
       }
       bars.style.gridTemplateColumns = "repeat(" + cols.length + ", minmax(0, 1fr))";
       cols.forEach(function (c) {
-        var col = el("div", "rv-bar" + (c.now ? " today" : "") + (c.pct === null ? " future" : ""));
+        var col = el(c.go ? "button" : "div", "rv-bar" + (c.now ? " today" : "") + (c.pct === null ? " future" : "") + (c.go ? " rv-go" : ""));
+        if (c.go) { col.type = "button"; col.onclick = c.go; col.setAttribute("aria-label", c.title); }
         if (c.title) col.title = c.title;
         var trackEl = el("div", "rv-track");
         var fill = el("span");
