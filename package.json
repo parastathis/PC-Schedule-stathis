@@ -1,0 +1,16 @@
+{
+  "name": "pc-schedule",
+  "productName": "PC Schedule",
+  "version": "1.0.0",
+  "description": "Stathis's daily planner — goals, habits, rules and things to buy.",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-packager . \"PC Schedule\" --platform=win32 --arch=x64 --icon=icon.ico --out=dist --overwrite --ignore=^/dist --ignore=^/data --ignore=^/\\.git"
+  },
+  "devDependencies": {
+    "@electron/packager": "^20.3.0",
+    "electron": "^44.4.5"
+  }
+}

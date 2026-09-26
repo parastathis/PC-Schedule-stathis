@@ -1,0 +1,6 @@
+node_modules/
+dist/
+data/
+release/
+icon-old.ico
+launch.ps1
